@@ -96,4 +96,4 @@ const main = () => {
     }
 };
 
-main();// Add a comment
+main();
