@@ -70,3 +70,30 @@ const parseMarkdown = (markdown) => {
 
     return html;
 };
+
+const main = () => {
+    const args = process.argv.slice(2);
+    if (args.length < 1) {
+        console.error('Usage: node app.js <input-markdown-file> [--out <output-html-file>]');
+        process.exit(1);
+    }
+
+    const inputFile = args[0];
+    const outputFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : null;
+
+    try {
+        const markdown = fs.readFileSync(inputFile, 'utf8');
+        const html = parseMarkdown(markdown);
+
+        if (outputFile) {
+            fs.writeFileSync(outputFile, html);
+        } else {
+            console.log(html);
+        }
+    } catch (err) {
+        console.error(err.message);
+        process.exit(1);
+    }
+};
+
+main();
