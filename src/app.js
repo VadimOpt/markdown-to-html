@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+// Function to convert markdown to HTML
 const parseMarkdown = (markdown) => {
     const lines = markdown.split('\n');
     let html = '';
@@ -69,6 +70,68 @@ const parseMarkdown = (markdown) => {
     }
 
     return html;
+};
+
+// Function to convert markdown to ANSI
+const parseMarkdownToANSI = (markdown) => {
+    const lines = markdown.split('\n');
+    let ansi = '';
+    let preformatted = false;
+    let stack = [];
+
+    const error = (message) => {
+        throw new Error(`Error: ${message}`);
+    };
+
+    const checkLine = (line, index) => {
+        const boldMatches = line.match(/\*\*/g);
+        const italicMatches = line.match(/_/g);
+        const monoMatches = line.match(/`/g);
+
+        if (boldMatches && boldMatches.length % 2 !== 0) {
+            error(`Invalid bold formatting on line ${index + 1}`);
+        }
+        if (italicMatches && italicMatches.length % 2 !== 0) {
+            error(`Invalid italic formatting on line ${index + 1}`);
+        }
+        if (monoMatches && monoMatches.length % 2 !== 0) {
+            error(`Invalid monospaced formatting on line ${index + 1}`);
+        }
+    };
+
+    lines.forEach((line, index) => {
+        checkLine(line, index);
+
+        if (preformatted) {
+            if (line.trim() === '```') {
+                preformatted = false;
+                ansi += '\x1b[0m'; // Reset ANSI
+                stack.pop();
+            } else {
+                ansi += line + '\n';
+            }
+        } else if (line.trim() === '```') {
+            preformatted = true;
+            ansi += '\x1b[7m'; // Inverse/reverse mode ANSI
+            stack.push('```');
+        } else if (line.trim().startsWith('**') && line.trim().endsWith('**')) {
+            ansi += `\x1b[1m${line.trim().slice(2, -2)}\x1b[0m`; // Bold ANSI
+        } else if (line.trim().startsWith('_') && line.trim().endsWith('_')) {
+            ansi += `\x1b[3m${line.trim().slice(1, -1)}\x1b[0m`; // Italic ANSI
+        } else if (line.trim().startsWith('`') && line.trim().endsWith('`')) {
+            ansi += `\x1b[7m${line.trim().slice(1, -1)}\x1b[0m`; // Inverse/reverse mode ANSI
+        } else if (line.trim() === '') {
+            ansi += '\n\n';
+        } else {
+            ansi += line + ' ';
+        }
+    });
+
+    if (stack.length > 0) {
+        error("Unclosed preformatted block");
+    }
+
+    return ansi;
 };
 
 const main = () => {
