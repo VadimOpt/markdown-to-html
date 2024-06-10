@@ -1,24 +1,26 @@
-# Markdown to HTML Converter
+# Markdown to HTML and ANSI Converter
 
 ## Description
-This is a simple console application that converts a subset of Markdown to HTML. It supports bold, italic, monospaced, and preformatted text, as well as paragraph separation.
+This is a simple console application that converts a subset of Markdown to HTML or ANSI formatted text. It supports bold, italic, monospaced, and preformatted text, as well as paragraph separation.
 
 ## Build and Run
 1. Clone the repository.
 2. Ensure Node.js is installed.
 3. Run the application:
-    - To output to stdout:
-      ```sh
-      node src/app.js /path/to/markdown/file.md
-      ```
-    - To output to a file:
-      ```sh
-      node src/app.js /path/to/markdown/file.md --out /path/to/output/file.html
-      ```
+   - To output to stdout:
+     ```sh
+     node src/app.js /path/to/markdown/file.md [--format html|ansi]
+     ```
+   - To output to a file:
+     ```sh
+     node src/app.js /path/to/markdown/file.md --out /path/to/output/file.html [--format html|ansi]
+     ```
 
 ## Usage
-- The application reads a Markdown file and converts it to HTML.
+- The application reads a Markdown file and converts it to either HTML or ANSI formatted text.
 - If the Markdown is invalid, an error is printed to stderr.
 
-## Revert Commit
-- The repository contains a revert commit that demonstrates the rollback of changes. Check the commit history for details.
+## Running Tests
+1. Install the dependencies:
+   ```sh
+   npm install
