@@ -137,21 +137,31 @@ const parseMarkdownToANSI = (markdown) => {
 const main = () => {
     const args = process.argv.slice(2);
     if (args.length < 1) {
-        console.error('Usage: node app.js <input-markdown-file> [--out <output-html-file>]');
+        console.error('Usage: node src/app.js <input-markdown-file> [--out <output-file>] [--format html|ansi]');
         process.exit(1);
     }
 
     const inputFile = args[0];
     const outputFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : null;
+    const format = args.includes('--format') ? args[args.indexOf('--format') + 1] : null;
 
     try {
         const markdown = fs.readFileSync(inputFile, 'utf8');
-        const html = parseMarkdown(markdown);
+        let output;
+
+        if (format === 'html' || (outputFile && !format)) {
+            output = parseMarkdownToHTML(markdown);
+        } else if (format === 'ansi' || (!outputFile && !format)) {
+            output = parseMarkdownToANSI(markdown);
+        } else {
+            console.error('Invalid format specified. Use "html" or "ansi".');
+            process.exit(1);
+        }
 
         if (outputFile) {
-            fs.writeFileSync(outputFile, html);
+            fs.writeFileSync(outputFile, output);
         } else {
-            console.log(html);
+            console.log(output);
         }
     } catch (err) {
         console.error(err.message);
