@@ -23,7 +23,7 @@ const parseMarkdownToHTML = (markdown) => {
     };
 
     lines.forEach((line, index) => {
-        //checkLine(line, index);
+        checkLine(line, index);
 
         if (preformatted) {
             if (line.trim() === '```') {
@@ -82,7 +82,7 @@ const parseMarkdownToANSI = (markdown) => {
     };
 
     lines.forEach((line, index) => {
-        //checkLine(line, index);
+        checkLine(line, index);
 
         if (preformatted) {
             if (line.trim() === '```') {
@@ -116,7 +116,7 @@ const parseMarkdownToANSI = (markdown) => {
 
 const main = () => {
     const args = process.argv.slice(2);
-    ///if (args.length < 1) {
+    if (args.length < 1) {
         console.error('Usage: node src/app.js <input-markdown-file> [--out <output-file>] [--format html|ansi]');
         process.exit(1);
     }
