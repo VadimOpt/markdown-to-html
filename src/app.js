@@ -23,7 +23,7 @@ const parseMarkdownToHTML = (markdown) => {
     };
 
     lines.forEach((line, index) => {
-        checkLine(line, index);
+        //checkLine(line, index);
 
         if (preformatted) {
             if (line.trim() === '```') {
@@ -54,7 +54,6 @@ const parseMarkdownToHTML = (markdown) => {
         }
     });
 
-    // Remove any potential leading <p> or trailing </p>
     html = html.replace(/^<p>|<\/p>$/g, '');
 
     return html;
@@ -83,7 +82,7 @@ const parseMarkdownToANSI = (markdown) => {
     };
 
     lines.forEach((line, index) => {
-        checkLine(line, index);
+        //checkLine(line, index);
 
         if (preformatted) {
             if (line.trim() === '```') {
