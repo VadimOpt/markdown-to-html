@@ -1,8 +1,6 @@
 const fs = require('fs');
-const path = require('path');
 
-// Function to convert markdown to HTML
-const parseMarkdown = (markdown) => {
+const parseMarkdownToHTML = (markdown) => {
     const lines = markdown.split('\n');
     let html = '';
     let preformatted = false;
@@ -13,18 +11,14 @@ const parseMarkdown = (markdown) => {
     };
 
     const checkLine = (line, index) => {
-        const boldMatches = line.match(/\*\*/g);
-        const italicMatches = line.match(/_/g);
-        const monoMatches = line.match(/`/g);
+        const boldMatches = (line.match(/\*\*/g) || []).length;
+        const italicMatches = (line.match(/_/g) || []).length;
 
-        if (boldMatches && boldMatches.length % 2 !== 0) {
+        if (boldMatches % 2 !== 0) {
             error(`Invalid bold formatting on line ${index + 1}`);
         }
-        if (italicMatches && italicMatches.length % 2 !== 0) {
+        if (italicMatches % 2 !== 0) {
             error(`Invalid italic formatting on line ${index + 1}`);
-        }
-        if (monoMatches && monoMatches.length % 2 !== 0) {
-            error(`Invalid monospaced formatting on line ${index + 1}`);
         }
     };
 
@@ -47,32 +41,25 @@ const parseMarkdown = (markdown) => {
             html += `<b>${line.trim().slice(2, -2)}</b>`;
         } else if (line.trim().startsWith('_') && line.trim().endsWith('_')) {
             html += `<i>${line.trim().slice(1, -1)}</i>`;
-        } else if (line.trim().startsWith('`') && line.trim().endsWith('`')) {
-            html += `<tt>${line.trim().slice(1, -1)}</tt>`;
         } else if (line.trim() === '') {
-            html += '</p><p>';
+            html += '<br>';
         } else {
-            if (index === 0 || lines[index - 1].trim() === '') {
+            if (index === 0 || lines[index - 1].trim() === '' || preformatted) {
                 html += '<p>';
             }
             html += line + ' ';
+            if (index === lines.length - 1 || lines[index + 1].trim() === '') {
+                html += '</p>';
+            }
         }
     });
 
-    if (stack.length > 0) {
-        error("Unclosed preformatted block");
-    }
-
-    if (html.endsWith('<p>')) {
-        html = html.slice(0, -3);
-    } else {
-        html += '</p>';
-    }
+    // Remove any potential leading <p> or trailing </p>
+    html = html.replace(/^<p>|<\/p>$/g, '');
 
     return html;
 };
 
-// Function to convert markdown to ANSI
 const parseMarkdownToANSI = (markdown) => {
     const lines = markdown.split('\n');
     let ansi = '';
@@ -84,18 +71,14 @@ const parseMarkdownToANSI = (markdown) => {
     };
 
     const checkLine = (line, index) => {
-        const boldMatches = line.match(/\*\*/g);
-        const italicMatches = line.match(/_/g);
-        const monoMatches = line.match(/`/g);
+        const boldMatches = (line.match(/\*\*/g) || []).length;
+        const italicMatches = (line.match(/_/g) || []).length;
 
-        if (boldMatches && boldMatches.length % 2 !== 0) {
+        if (boldMatches % 2 !== 0) {
             error(`Invalid bold formatting on line ${index + 1}`);
         }
-        if (italicMatches && italicMatches.length % 2 !== 0) {
+        if (italicMatches % 2 !== 0) {
             error(`Invalid italic formatting on line ${index + 1}`);
-        }
-        if (monoMatches && monoMatches.length % 2 !== 0) {
-            error(`Invalid monospaced formatting on line ${index + 1}`);
         }
     };
 
@@ -118,8 +101,6 @@ const parseMarkdownToANSI = (markdown) => {
             ansi += `\x1b[1m${line.trim().slice(2, -2)}\x1b[0m`; // Bold ANSI
         } else if (line.trim().startsWith('_') && line.trim().endsWith('_')) {
             ansi += `\x1b[3m${line.trim().slice(1, -1)}\x1b[0m`; // Italic ANSI
-        } else if (line.trim().startsWith('`') && line.trim().endsWith('`')) {
-            ansi += `\x1b[7m${line.trim().slice(1, -1)}\x1b[0m`; // Inverse/reverse mode ANSI
         } else if (line.trim() === '') {
             ansi += '\n\n';
         } else {
@@ -169,4 +150,11 @@ const main = () => {
     }
 };
 
-main();
+module.exports = {
+    parseMarkdownToHTML,
+    parseMarkdownToANSI
+};
+
+if (require.main === module) {
+    main();
+}
