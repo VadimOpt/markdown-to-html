@@ -157,3 +157,5 @@ module.exports = {
 if (require.main === module) {
     main();
 }
+
+console.log('123')
